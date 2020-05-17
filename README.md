@@ -1,10 +1,12 @@
 # PopGen
 
-PopGen is a generative modelling research toolkit for PyTorch, with an emphasis on likelihood-based models
+PopGen is a generative modelling research toolkit with an emphasis on likelihood-based models
 and representation learning. It aims to provide high quality reference implementations, evaluation code
 and reusable model components.
 
-PopGen is still a young project. More models and code examples will be added in coming months.
+PopGen is still a young project. While the included modules have been validated on internal research
+projects, we can't guarantee they are completely bug free. More modules and example code will be added in coming
+months.
 
 ## Example Experiment
 
@@ -34,11 +36,18 @@ See the training [plots](https://app.wandb.ai/angusturner/vae_experiments?worksp
 | Concept | Implementation | Associated Paper(s) |
 | --- | --- | --- |
 | Causal Convolution | `popgen.nn.causal_conv` | [WaveNet](https://arxiv.org/abs/1609.03499), [Fast Wavenet](https://arxiv.org/abs/1611.09482) |
-| Sylvester Flows | `popgen.nn.flows.hsnf` | [Sylvester Normalizing Flows](https://arxiv.org/abs/1803.05649) |
+| Householder Sylvester Flows | `popgen.nn.flows.hsnf` | [Sylvester Normalizing Flows](https://arxiv.org/abs/1803.05649) |
 | VAMP Prior | `popgen.nn.vamp_prior` | [VAE with a VampPrior](https://arxiv.org/abs/1705.07120) |
 | Vector Quantization | `popgen.nn.vqvae` | [Neural Discrete Representation Learning](https://arxiv.org/abs/1711.00937) |
 | Constrained Optimisation for Beta-VAE | `popgen.optim.geco` | [Taming VAEs](https://arxiv.org/abs/1810.00597) |
 | Contrastive Predictive Coding | `popgen.nn.cpc` | [Representation Learning with Contrastive Predictive Coding](https://arxiv.org/abs/1807.03748) |
+
+Watch this space for more models! Coming soon:
+- More flows
+    - Planar
+    - Autoregressive
+    - Orthogonal Sylvester (needs port to PyTorch 1.0)
+- RealNVP / GLOW
 
 ## Requirements
 
