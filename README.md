@@ -1,10 +1,7 @@
 # PopGen
 
-PopGen is a generative modelling research toolkit with an emphasis on likelihood-based models
-and representation learning. It aims to provide high quality reference implementations, evaluation code
-and reusable model components.
-
-PopGen is still a young project. More code examples and modules will be added over the coming months.
+PopGen is a generative modelling toolkit written in PyTorch. It aims to provide high quality reference 
+implementations and reusable components, with an emphasis on likelihood based models and representation learning.
 
 ## Example Experiment
 
@@ -14,8 +11,8 @@ of the L=1 VAE described in [VAE with a VampPrior](https://arxiv.org/abs/1705.07
 model also introduces K=4 [Sylvester Normalizing Flows](https://arxiv.org/abs/1803.05649) to the
 posterior distribution.
 
-Each model is trained for 1M steps on dynamically binarized MNIST. The checkpoint with the lowest
-test loss is retained. Marginal likelihoods are estimated using the [IWAE](https://arxiv.org/abs/1509.00519) bound
+Each model is trained for 1M steps on dynamically binarized MNIST. 
+Marginal likelihoods are estimated using the [IWAE](https://arxiv.org/abs/1509.00519) bound
 and 5000 samples.
 
 | Name | Posterior | Prior | log p(x) |
