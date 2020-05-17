@@ -8,13 +8,15 @@ PopGen is still a young project. More models and code examples will be added in 
 
 ## Example Experiment
 
-The included Variational Autoencoder demonstrates how flexible posterior and prior distributions can
-improve over a gaussian baseline. 
+The included VAE examples demonstrate how flexible posterior and prior distributions can
+improve over a gaussian baseline. The `vae` and `vamp` architectures follow the settings
+of the L=1 VAE described in [VAE with a VampPrior](https://arxiv.org/abs/1705.07120). The `vae_vamp_hsnf`
+model also introduces K=4 [Sylvester Normalizing Flows](https://arxiv.org/abs/1803.05649) to the
+posterior distribution.
 
-Hyper-parameters are based on the L=1 VAE described in [VAE with a VampPrior](https://arxiv.org/abs/1705.07120). 
-The flow model additionally introduces 
-K=4 steps of Householder [Sylvester Normalizing flows](https://arxiv.org/abs/1803.05649). 
-Marginal likelihoods are estimated using the [IWAE](https://arxiv.org/abs/1509.00519) bound and 5000 samples.
+Each model is trained for ~1M steps on dynamically binarized MNIST. The checkpoint with the lowest
+test loss is retained, and marginal likelihoods estimated using the [IWAE](https://arxiv.org/abs/1509.00519) bound
+and 5000 samples.
 
 | Name | Posterior | Prior | log p(x) |
 | --- | --- | --- | --- |
