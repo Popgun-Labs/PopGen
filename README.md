@@ -14,8 +14,8 @@ of the L=1 VAE described in [VAE with a VampPrior](https://arxiv.org/abs/1705.07
 model also introduces K=4 [Sylvester Normalizing Flows](https://arxiv.org/abs/1803.05649) to the
 posterior distribution.
 
-Each model is trained for ~1M steps on dynamically binarized MNIST. The checkpoint with the lowest
-test loss is retained, and marginal likelihoods estimated using the [IWAE](https://arxiv.org/abs/1509.00519) bound
+Each model is trained for 1M steps on dynamically binarized MNIST. The checkpoint with the lowest
+test loss is retained. Marginal likelihoods are estimated using the [IWAE](https://arxiv.org/abs/1509.00519) bound
 and 5000 samples.
 
 | Name | Posterior | Prior | log p(x) |
