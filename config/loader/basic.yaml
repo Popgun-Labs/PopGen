@@ -1,0 +1,14 @@
+# Good standard settings for the PyTorch DataLoader class. Note that
+# the batch_size should probably be set from the CLI for the specific experiment.
+loader:
+  # settings for both train and validation
+  both:
+    num_workers: 4
+    pin_memory: true
+    shuffle: true
+    batch_size: 100
+  # specific settings
+  train:
+    drop_last: true
+  test:
+    drop_last: false

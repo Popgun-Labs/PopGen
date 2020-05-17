@@ -1,0 +1,15 @@
+# set the desired model and corresponding hyper-params
+# any class defined in src.models.__init__.py is valid here
+model_class: VAE
+model:
+    input_dim: 784
+    latent_dim: 40
+    hidden_dim: 300
+    nb_layers: 2
+    encoder:
+        deterministic: false
+    decoder:
+        {}
+    posterior_flow: null
+    prior:
+        nb_components: 500

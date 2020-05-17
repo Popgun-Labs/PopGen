@@ -1,0 +1,9 @@
+torch>=1.4
+tqdm>=4.46.0
+numpy>=1.16.1
+seaborn
+hydra-core
+wandb
+flake8
+autopep8
+prompt_toolkit>=3.0.5

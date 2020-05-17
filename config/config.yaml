@@ -1,0 +1,9 @@
+name: null
+model: null
+dataset: null
+worker: null
+nb_epoch: 1667
+wandb:
+  project: vae_experiments
+defaults:
+  - loader: basic

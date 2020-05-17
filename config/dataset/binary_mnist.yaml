@@ -1,0 +1,13 @@
+# Configure the desired dataset class, and the options that will be passed down to it
+# any class name defined in `dataset/__init__.py` is valid here
+dataset_class: BinaryMNIST
+dataset:
+  # mutual settings for train and validation
+  both:
+    data_dir: /home/angusturner/data/
+    dynamic: true
+  # specific settings for each subset (e.g. turn off augmentation for validation)
+  train:
+    train: true
+  test:
+    train: false

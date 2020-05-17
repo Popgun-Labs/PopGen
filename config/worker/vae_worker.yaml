@@ -1,0 +1,11 @@
+# set the worker class and associated config.
+worker_class: VAE_Worker
+worker:
+  epoch_save_freq: 50
+  log_interval: 50
+  annealing_temp: 1e-4
+  max_beta: 1.0
+  optim_class: Adam
+  optim_settings:
+    lr: 2e-4
+    weight_decay: 0.

@@ -1,0 +1,2 @@
+# prevent notebooks from being counted in the language statistics on GitHub
+notebooks/* linguist-documentation
