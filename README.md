@@ -4,9 +4,7 @@ PopGen is a generative modelling research toolkit with an emphasis on likelihood
 and representation learning. It aims to provide high quality reference implementations, evaluation code
 and reusable model components.
 
-PopGen is still a young project. While the included modules have been validated on internal research
-projects, we can't guarantee they are completely bug free. More modules and example code will be added in coming
-months.
+PopGen is still a young project. More code examples and modules will be added over the coming months.
 
 ## Example Experiment
 
