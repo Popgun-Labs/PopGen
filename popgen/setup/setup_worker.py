@@ -4,19 +4,25 @@ import os
 from omegaconf import OmegaConf, DictConfig
 from popgen import models, workers
 
-from typing import Optional
+from typing import Optional, Union
 
 
-def setup_worker(name: str, cfg: Optional[DictConfig] = None, exp_dir: Optional[str] = None, include_wandb: bool = True,
-                 overwrite: bool = False):
+def setup_worker(name: str, cfg: Optional[Union[DictConfig, dict]] = None, exp_dir: Optional[str] = None,
+                 include_wandb: bool = True, overwrite: bool = False):
     """
     :param name: unique experiment name for saving/resuming
     :param cfg: experiment config. can be `None` for existing experiment.
+        otherwise a `dict` or `DictConfig` containing the configuration.
     :param exp_dir: directory to store experiment runs
     :param include_wandb: include an instance of wandb ? (required for training)
     :param overwrite: overwrite existing experiment
     :return:
     """
+
+    # if a regular `dict` type is passed in, convert to `DictConfig` to make use of the YAML
+    # serialization methods
+    if type(cfg) == dict:
+        cfg = DictConfig(cfg)
 
     # get experiment directory
     if exp_dir is None:
