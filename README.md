@@ -36,7 +36,7 @@ See the training [plots](https://app.wandb.ai/angusturner/vae_experiments?worksp
 | Vector Quantization | `popgen.nn.vqvae` | [Neural Discrete Representation Learning](https://arxiv.org/abs/1711.00937) |
 | Constrained Optimisation for Beta-VAE | `popgen.optim.geco` | [Taming VAEs](https://arxiv.org/abs/1810.00597) |
 | Contrastive Predictive Coding | `popgen.nn.cpc` | [Representation Learning with Contrastive Predictive Coding](https://arxiv.org/abs/1807.03748) |
-| Generalized End-to-End Loss | `popgun.nn.cosine_centroid_loss` | [Generalized End-to-End Loss for Speaker Verification](https://arxiv.org/abs/1710.10467) |
+| Generalized End-to-End Loss | `popgen.nn.cosine_centroid_loss` | [Generalized End-to-End Loss for Speaker Verification](https://arxiv.org/abs/1710.10467) |
 
 Watch this space for more models! Coming soon:
 - More flows
