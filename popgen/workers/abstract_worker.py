@@ -41,6 +41,16 @@ class AbstractWorker(ABC):
         self.epoch_save_freq = epoch_save_freq
         self.log_interval = log_interval
 
+        # cache values until its time to plot them
+        self._counters = {
+            'train': 0,
+            'test': 0
+        }
+        self._metric_cache = {
+            'train': {},
+            'test': {}
+        }
+
     @abstractmethod
     def train(self, loader):
         pass
@@ -63,7 +73,8 @@ class AbstractWorker(ABC):
 
             # wandb train and test sets
             self.train(train_loader)
-            loss_score, *_ = self.evaluate(test_loader)
+            with torch.no_grad():
+                loss_score, *_ = self.evaluate(test_loader)
 
             # save `best`
             if loss_score < self.lowest_loss:
@@ -145,3 +156,43 @@ class AbstractWorker(ABC):
                 obj.load_state_dict(state, strict)
             else:
                 obj.load_state_dict(state)
+
+    @staticmethod
+    def unwrap_value(v):
+        if torch.is_tensor(v):
+            return v.item()
+        elif type(v) == np.ndarray:
+            return v.item()
+        else:
+            return v
+
+    def _plot_loss(self, metrics: dict, train=True):
+        """
+        Plot metrics to weights and biases.
+
+        Keeps a moving average of values and pushes them every `log_interval`.
+
+        :param metrics: dictionary of things to track
+        :param train: ?
+        """
+        subset = "train" if train else "test"
+
+        for k, v in metrics.items():
+            full_key = "{} {}".format(k, subset)
+            if full_key not in self._metric_cache[subset]:
+                self._metric_cache[subset][full_key] = []
+            v_raw = AbstractWorker.unwrap_value(v)
+            self._metric_cache[subset][full_key].append(v_raw)
+
+        # increment the counter
+        self._counters[subset] += 1
+
+        # empty cache and plot!
+        if self._counters[subset] % self.log_interval == 0:
+            avg = {}
+            for k, v in self._metric_cache[subset].items():
+                avg[k] = np.mean(v)
+                self._metric_cache[subset][k] = []
+
+            self.wandb.log(avg)
+            self._counters[subset] = 0

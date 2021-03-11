@@ -52,13 +52,18 @@ def setup_worker(name: str, cfg: Optional[Union[DictConfig, dict]] = None, exp_d
         cfg['run_id'] = run_id
 
         OmegaConf.save(cfg, config_path)
+    # Note: when overwriting parameters we will preserve the same `run_id`. This allows to resume
+    # training with tweaked parameters (e.g lower learning rate)
     else:
+        existing_cfg = OmegaConf.load(config_path)
+        run_id = existing_cfg['run_id']
         if not overwrite:
             print("Loading existing experiment at {}".format(config_path))
             print("If you would like to overwrite, please set overwrite=True.")
-            cfg = OmegaConf.load(config_path)
+            cfg = existing_cfg
         else:
             print("Overwriting existing configuration at {}".format(config_path))
+            cfg['run_id'] = run_id
             OmegaConf.save(cfg, config_path)
 
     # print the configuration
