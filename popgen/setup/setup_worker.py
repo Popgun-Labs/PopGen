@@ -7,8 +7,13 @@ from popgen import models, workers
 from typing import Optional, Union
 
 
-def setup_worker(name: str, cfg: Optional[Union[DictConfig, dict]] = None, exp_dir: Optional[str] = None,
-                 include_wandb: bool = True, overwrite: bool = False):
+def setup_worker(
+    name: str,
+    cfg: Optional[Union[DictConfig, dict]] = None,
+    exp_dir: Optional[str] = None,
+    include_wandb: bool = True,
+    overwrite: bool = False,
+):
     """
     :param name: unique experiment name for saving/resuming
     :param cfg: experiment config. can be `None` for existing experiment.
@@ -26,10 +31,12 @@ def setup_worker(name: str, cfg: Optional[Union[DictConfig, dict]] = None, exp_d
 
     # get experiment directory
     if exp_dir is None:
-        exp_dir = os.environ.get('EXPERIMENT_DIR', False)
+        exp_dir = os.environ.get("EXPERIMENT_DIR", False)
         if not exp_dir:
-            raise Exception("No experiment directory defined. Set environment variable `EXPERIMENT_DIR` or "
-                            "pass as kwarg `setup_worker(..., exp_dir=?)")
+            raise Exception(
+                "No experiment directory defined. Set environment variable `EXPERIMENT_DIR` or "
+                "pass as kwarg `setup_worker(..., exp_dir=?)"
+            )
 
     # create the experiment directory if it doesn't exist
     if not os.path.exists(exp_dir):
@@ -49,44 +56,40 @@ def setup_worker(name: str, cfg: Optional[Union[DictConfig, dict]] = None, exp_d
         # generate a unique id for this run
         run_id = wandb.util.generate_id()
         OmegaConf.set_struct(cfg, False)
-        cfg['run_id'] = run_id
+        cfg["run_id"] = run_id
 
         OmegaConf.save(cfg, config_path)
     # Note: when overwriting parameters we will preserve the same `run_id`. This allows to resume
     # training with tweaked parameters (e.g lower learning rate)
     else:
         existing_cfg = OmegaConf.load(config_path)
-        run_id = existing_cfg['run_id']
+        run_id = existing_cfg["run_id"]
+
         if not overwrite:
             print("Loading existing experiment at {}".format(config_path))
             print("If you would like to overwrite, please set overwrite=True.")
             cfg = existing_cfg
         else:
             print("Overwriting existing configuration at {}".format(config_path))
-            cfg['run_id'] = run_id
+            OmegaConf.set_struct(cfg, False)
+            cfg["run_id"] = run_id
             OmegaConf.save(cfg, config_path)
 
     # print the configuration
     print(cfg.pretty())
 
     # initialise model
-    model_class = getattr(models, cfg['model_class'])
-    model = model_class(**cfg['model'])
+    model_class = getattr(models, cfg["model_class"])
+    model = model_class(**cfg["model"])
 
     # setup visualisation
     run = None
-    if include_wandb and 'wandb' in cfg:
-        run = wandb.init(
-            name=name,
-            config=cfg,
-            id=cfg['run_id'],
-            resume='allow',
-            **cfg['wandb']
-        )
+    if include_wandb and "wandb" in cfg:
+        run = wandb.init(name=name, config=cfg, id=cfg["run_id"], resume="allow", **cfg["wandb"])
         run.watch(model)
 
     # initialise the worker
-    worker_class = getattr(workers, cfg['worker_class'])
-    worker = worker_class(name, model, run_dir, run, **cfg['worker'])
+    worker_class = getattr(workers, cfg["worker_class"])
+    worker = worker_class(name, model, run_dir, run, **cfg["worker"])
 
     return worker, cfg
