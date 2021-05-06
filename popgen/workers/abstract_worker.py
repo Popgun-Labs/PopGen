@@ -4,6 +4,7 @@ import os
 import numpy as np
 from abc import ABC, abstractmethod
 from typing import Any
+from pathlib import Path
 
 from torch.utils.data import DataLoader
 
@@ -28,6 +29,7 @@ class AbstractWorker(ABC):
         self.exp_name = exp_name
         self.wandb = wandb
         self.run_dir = run_dir
+        self.upload_checkpoints = kwargs.get("upload_checkpoints", False)
 
         # keep a list of all stateful objects, to include in the experiment checkpoints
         # includes the model by default
@@ -81,7 +83,8 @@ class AbstractWorker(ABC):
                 print("New lowest test loss {}".format(loss_score))
                 self.save(checkpoint_id='best')
                 self.lowest_loss = loss_score
-                self.wandb.summary["lowest_loss"] = loss_score
+                if self.wandb is not None:
+                    self.wandb.summary["lowest_loss"] = loss_score
 
             # save every `x` epoch
             if epoch % self.epoch_save_freq == 0:
@@ -131,6 +134,14 @@ class AbstractWorker(ABC):
         checkpoint_path = "{}/checkpoint_{}.pt".format(self.run_dir, checkpoint_id)
         print("Saving checkpoint {}".format(checkpoint_path))
         torch.save(state_dict, checkpoint_path)
+
+        # upload and overwrite the checkpoints to wandb if `upload_checkpoints` enabled in worker config
+        if self.wandb is not None and self.upload_checkpoints and checkpoint_id in ["latest", "best"]:
+            self.wandb.save(
+                glob_str=checkpoint_path,
+                base_path=str(Path(self.run_dir).parent),
+                policy="live"
+            )
 
     def load(self, checkpoint_id: str = "best", strict: bool = True):
         """
