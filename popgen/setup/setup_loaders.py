@@ -1,5 +1,11 @@
-from popgen import datasets
 from torch.utils.data import DataLoader
+import importlib
+
+try:
+    datasets = importlib.import_module(__package__, "datasets")
+except Exception as e:
+    print("Setup failed. Ensure that the current package exports `src.datasets`")
+    raise e
 
 
 def setup_loaders(dataset_class: str, data_opts: dict, loader_opts: dict):
