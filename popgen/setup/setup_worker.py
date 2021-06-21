@@ -2,19 +2,7 @@ import wandb
 import os
 
 from omegaconf import OmegaConf, DictConfig
-
-
-# import the `model` and `worker` modules relative to the current package
-import importlib
-
-try:
-    models = importlib.import_module(__package__, "models")
-    workers = importlib.import_module(__package__, "workers")
-except Exception as e:
-    print("Setup failed. Ensure that the current package exports `src.models` and `src.workers`")
-    raise e
-
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 
 def setup_worker(
@@ -23,6 +11,7 @@ def setup_worker(
     exp_dir: Optional[str] = None,
     include_wandb: bool = True,
     overwrite: bool = False,
+    module: Optional[Any] = None,
 ):
     """
     :param name: unique experiment name for saving/resuming
@@ -31,8 +20,18 @@ def setup_worker(
     :param exp_dir: directory to store experiment runs
     :param include_wandb: include an instance of wandb ? (required for training)
     :param overwrite: overwrite existing experiment
+    :param module: a python module containing `workers`, `models` and `datasets`
     :return:
     """
+    if module is not None:
+        assert hasattr(module, "workers"), "Specified module must export `workers` sub pkg."
+        assert hasattr(module, "models"), "Specified module must export `models` sub pkg."
+        workers = module.workers
+        models = module.models
+    else:
+        from popgen import workers, models
+
+        print("Warning: No module supplied in `setup_loaders`. Defaulting to `popgen.workers` and `popgen.models`. ")
 
     # if a regular `dict` type is passed in, convert to `DictConfig` to make use of the YAML
     # serialization methods

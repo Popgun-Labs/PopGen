@@ -1,20 +1,23 @@
+from typing import Any, Optional
+
 from torch.utils.data import DataLoader
-import importlib
-
-try:
-    datasets = importlib.import_module(__package__, "datasets")
-except Exception as e:
-    print("Setup failed. Ensure that the current package exports `src.datasets`")
-    raise e
 
 
-def setup_loaders(dataset_class: str, data_opts: dict, loader_opts: dict):
+def setup_loaders(dataset_class: str, data_opts: dict, loader_opts: dict, module: Optional[Any] = None):
     """
-    :param dataset_class: name of dataset class. any class exported in data/__init__.py
+    :param dataset_class: name of dataset class. any class exported in <module>/data/__init__.py
     :param data_opts: `dataset` config sub-dictionary
     :param loader_opts: `loader` config sub-dictionary
+    :param module: the module to import datasets from
     :return:
     """
+    if module is not None:
+        datasets = module.datasets
+        assert hasattr(module, "datasets"), "Supplied module must export `datasets` sub pkg"
+    else:
+        from popgen import datasets
+
+        print("Warning: No module supplied in `setup_loaders`. Defaulting to `popgen.datasets`")
 
     # initialise datasets
     dataset_class = getattr(datasets, dataset_class)
