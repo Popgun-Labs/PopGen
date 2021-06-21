@@ -3,6 +3,7 @@ worker_class: VAE_Worker
 worker:
   epoch_save_freq: 50
   log_interval: 50
+  upload_checkpoints: true
   annealing_temp: 1e-4
   max_beta: 1.0
   optim_class: Adam
