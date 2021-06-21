@@ -10,7 +10,7 @@ import numpy as np
 log_norm_constant = -0.5 * np.log(2 * np.pi)
 
 
-def log_gaussian(x, mean=0., logvar=0.):
+def log_gaussian(x, mean=0.0, logvar=0.0):
     """
     Returns the component-wise density of x under the gaussian parameterised
     by `mean` and `logvar`

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class MLP_Encoder(nn.Module):
-    def __init__(self, input_dim=784, hidden_dim=256, latent_dim=32, nb_layers=2, deterministic=False, dropout_p=0.):
+    def __init__(self, input_dim=784, hidden_dim=256, latent_dim=32, nb_layers=2, deterministic=False, dropout_p=0.0):
         """
         A simple MLP encoder with gated activations.
         :param input_dim: input features
@@ -24,11 +24,7 @@ class MLP_Encoder(nn.Module):
         layers = []
         for i in range(nb_layers):
             input_dim = hidden_dim if i > 0 else input_dim
-            layers += [
-                nn.Linear(input_dim, hidden_dim * 2),
-                nn.GLU(dim=1),
-                nn.Dropout(dropout_p)
-            ]
+            layers += [nn.Linear(input_dim, hidden_dim * 2), nn.GLU(dim=1), nn.Dropout(dropout_p)]
 
         self.layers = nn.Sequential(*layers)
 

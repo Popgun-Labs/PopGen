@@ -30,9 +30,9 @@ class Jitter(nn.Module):
 
         # sample copy masks
         replace_with_left = self.sample_copy_mask(x)
-        replace_with_left[:, 0] = 0.  # prevent left-most item being swapped for an item on the left
+        replace_with_left[:, 0] = 0.0  # prevent left-most item being swapped for an item on the left
         replace_with_right = self.sample_copy_mask(x)
-        replace_with_right[:, -1] = 0.
+        replace_with_right[:, -1] = 0.0
 
         # create two copies of the input
         x_left = F.pad(x, (0, 0, 1, 0))[:, :-1]

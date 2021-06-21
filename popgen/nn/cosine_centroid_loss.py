@@ -41,8 +41,8 @@ class CosineCentroidLoss(nn.Module):
         # (nb_samples, nb_classes, nb_samples, embedding_dim)
         pos_centroids = x.unsqueeze(0).repeat(nb_samples, 1, 1, 1)
         # (nb_samples, 1, nb_samples, 1)
-        mask = 1. - torch.eye(nb_samples, nb_samples, device=w.device)[:, None, :, None]
-        pos_centroids = (pos_centroids * mask).sum(2) / (nb_samples - 1.)  # (nb_samples, nb_classes, emb_dim)
+        mask = 1.0 - torch.eye(nb_samples, nb_samples, device=w.device)[:, None, :, None]
+        pos_centroids = (pos_centroids * mask).sum(2) / (nb_samples - 1.0)  # (nb_samples, nb_classes, emb_dim)
 
         # embed the positive centroids on the diagonal of the similarity matrix
         pos_centroids = pos_centroids.transpose(1, 2)  # (nb_samples, emb_dim, nb_classes)
@@ -58,7 +58,7 @@ class CosineCentroidLoss(nn.Module):
         # create the centroids matrix, with the true cluster means on the off-diagonal,
         # and the adjusted positive centroids on the diagonal.
         # (nb_classes, 1, nb_classes, 1)
-        mask = 1. - torch.eye(nb_classes, nb_classes, device=w.device)[:, None, :, None]
+        mask = 1.0 - torch.eye(nb_classes, nb_classes, device=w.device)[:, None, :, None]
         centroids = (mask * neg_centroids) + pos_centroids
 
         # expand `x` for comparison with each centroid

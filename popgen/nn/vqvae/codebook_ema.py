@@ -42,10 +42,10 @@ class CodebookEMA(nn.Module):
         N = torch.zeros(nb_codes, 1).float()
         t = torch.ones(1).long()
 
-        self.register_buffer('e', e)
-        self.register_buffer('m', m)
-        self.register_buffer('N', N)
-        self.register_buffer('t', t)
+        self.register_buffer("e", e)
+        self.register_buffer("m", m)
+        self.register_buffer("N", N)
+        self.register_buffer("t", t)
 
     def set_codebook(self, e):
         """
@@ -53,8 +53,8 @@ class CodebookEMA(nn.Module):
         :return:
         """
         self.e = e
-        self.m.fill_(0.)
-        self.N.fill_(0.)
+        self.m.fill_(0.0)
+        self.N.fill_(0.0)
         self.t.fill_(1)
 
     def get_codebook(self):
@@ -70,8 +70,9 @@ class CodebookEMA(nn.Module):
         """
         # ensure `z_e` is the correct size
         embedding_dim = self.embedding_dim
-        assert z_e.size(-1) == embedding_dim, \
-            "z_e must have embedding_dim={} features on the final dimension".format(embedding_dim)
+        assert z_e.size(-1) == embedding_dim, "z_e must have embedding_dim={} features on the final dimension".format(
+            embedding_dim
+        )
 
         # extract params
         m = self.m
@@ -81,7 +82,7 @@ class CodebookEMA(nn.Module):
 
         # one-hot encode the indices / codes
         batch = z_e.size(0)
-        one_hot = z_e.new(self.nb_codes, batch).fill_(0.)
+        one_hot = z_e.new(self.nb_codes, batch).fill_(0.0)
         one_hot.scatter_(0, idxs.unsqueeze(0), 1)
 
         # compute the number of items assigned to each code
@@ -89,8 +90,8 @@ class CodebookEMA(nn.Module):
 
         # update the cluster assignment moving average, and
         # correct for zero bias as per https://arxiv.org/pdf/1412.6980.pdf
-        zero_bias_correction = 1. - (decay ** t)
-        N_update = (N * decay) + n_i * (1. - decay)
+        zero_bias_correction = 1.0 - (decay ** t)
+        N_update = (N * decay) + n_i * (1.0 - decay)
         N_update_debiased = N_update / zero_bias_correction
 
         # Adjustment for batch sizes. Not explained in paper, but present in reference implementation.
@@ -102,7 +103,7 @@ class CodebookEMA(nn.Module):
         # create a (nb_codes, emb_dim) matrix, where the i-th
         # row contain the sum of encoder outputs assigned to cluster `i`
         w = one_hot @ z_e
-        m_update = (m * decay) + w * (1. - decay)
+        m_update = (m * decay) + w * (1.0 - decay)
         m_update_debiased = m_update / zero_bias_correction
 
         # update state

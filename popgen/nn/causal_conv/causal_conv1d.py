@@ -62,7 +62,7 @@ class CausalConv1d(nn.Module):
         # sampling mode
         else:
             # note: x refers to a single timestep (batch, features, 1)
-            if not hasattr(self, 'recurrent_state'):
+            if not hasattr(self, "recurrent_state"):
                 batch_size = x.size(0)
                 self._init_recurrent_state(batch_size)
 
@@ -74,7 +74,7 @@ class CausalConv1d(nn.Module):
         leftover state bleeding into future samples. Note that we delete state (instead of zeroing) to support
         changes in the inference time batch size.
         """
-        if hasattr(self, 'recurrent_state'):
+        if hasattr(self, "recurrent_state"):
             del self.recurrent_state
 
     def _init_recurrent_state(self, batch):
@@ -85,8 +85,8 @@ class CausalConv1d(nn.Module):
 
         # extract weights and biases from nn.Conv1d module
         state = self.conv.state_dict()
-        self.weight = state['weight']
-        self.bias = state['bias']
+        self.weight = state["weight"]
+        self.bias = state["bias"]
 
         # initialize the recurrent states to zeros
         self.recurrent_state = torch.zeros(batch, self.in_channels, self.zeros, device=self.bias.device)
@@ -103,17 +103,15 @@ class CausalConv1d(nn.Module):
         # if the kernel_size is greater than 1, use recurrent state.
         if self.kernel_size > 1:
             # extract the recurrent state and concat with input column
-            recurrent_activations = self.recurrent_state[:, :, :self.zeros]
+            recurrent_activations = self.recurrent_state[:, :, : self.zeros]
             f = torch.cat([recurrent_activations, x_i], 2)
 
             # update the cache for this layer
-            self.recurrent_state = torch.cat(
-                [self.recurrent_state[:, :, 1:], x_i], 2)
+            self.recurrent_state = torch.cat([self.recurrent_state[:, :, 1:], x_i], 2)
         else:
             f = x_i
 
         # perform convolution
-        activations = F.conv1d(f, self.weight, self.bias,
-                               dilation=self.dilation, groups=self.groups)
+        activations = F.conv1d(f, self.weight, self.bias, dilation=self.dilation, groups=self.groups)
 
         return activations

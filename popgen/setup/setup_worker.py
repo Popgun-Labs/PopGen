@@ -2,7 +2,17 @@ import wandb
 import os
 
 from omegaconf import OmegaConf, DictConfig
-from popgen import models, workers
+
+
+# import the `model` and `worker` modules relative to the current package
+import importlib
+
+try:
+    models = importlib.import_module(__package__, "models")
+    workers = importlib.import_module(__package__, "workers")
+except Exception as e:
+    print("Setup failed. Ensure that the current package exports `src.models` and `src.workers`")
+    raise e
 
 from typing import Optional, Union
 

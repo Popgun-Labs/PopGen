@@ -33,7 +33,7 @@ class VAMPPrior(nn.Module):
 
         # create the pseudo-inputs with random-normal initialisation
         self.nb_inputs = nb_components
-        U = torch.empty(nb_components, input_dim).normal_(0., 0.1)
+        U = torch.empty(nb_components, input_dim).normal_(0.0, 0.1)
         self.U = nn.Parameter(U, requires_grad=True)
 
         # use a non-linearity to constrain the scale of pseudo-inputs

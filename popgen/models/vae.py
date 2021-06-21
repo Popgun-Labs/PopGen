@@ -83,7 +83,7 @@ class VAE(nn.Module):
         # VAMP Prior
         else:
             if cache_params:
-                if hasattr(self, 'prior_params'):
+                if hasattr(self, "prior_params"):
                     prior_mus, prior_logvars = self.prior_params
                 else:
                     U = self.prior.get_U()
@@ -125,7 +125,7 @@ class VAE(nn.Module):
             if reduce: (1)
             else: (batch)
         """
-        log_likelihood = F.binary_cross_entropy_with_logits(x_sample, x, reduction='none')
+        log_likelihood = F.binary_cross_entropy_with_logits(x_sample, x, reduction="none")
         log_likelihood = log_likelihood.sum(-1)  # (batch)
         if reduce:
             log_likelihood = log_likelihood.mean()

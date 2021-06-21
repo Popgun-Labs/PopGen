@@ -70,13 +70,12 @@ class PredictionModel(nn.Module):
 
         # shuffle z_windows randomly on the length dimension
         z_shuffle = z_windows[B_idx][:, L_idx]  # (-ve samples, L-K, K, latent_dim)
-        z_shuffle = z_shuffle[None, ]  # (1, -ve samples, L-K, K, latent_dim)
+        z_shuffle = z_shuffle[
+            None,
+        ]  # (1, -ve samples, L-K, K, latent_dim)
 
         # combine the length-shuffled and fully shuffled samples
-        z_shuffle = torch.cat([
-            z_shuffle.expand_as(z_shuffle_length),
-            z_shuffle_length
-        ], dim=1)
+        z_shuffle = torch.cat([z_shuffle.expand_as(z_shuffle_length), z_shuffle_length], dim=1)
 
         return z_shuffle
 

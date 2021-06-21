@@ -2,7 +2,7 @@ import numpy as np
 
 
 class GECO:
-    def __init__(self, decay=0.99, prop=1e-6, initial_lagrange=1.):
+    def __init__(self, decay=0.99, prop=1e-6, initial_lagrange=1.0):
         """
         GECO for constrained optimisation
 
@@ -32,7 +32,7 @@ class GECO:
         else:
             self.C_ma = self.decay * self.C_ma + (1 - self.decay) * C_batch
 
-        C_dif = (self.C_ma - C_batch)
+        C_dif = self.C_ma - C_batch
 
         # compute Lagrange multiplier (essentially 1/beta)
         C = C_batch + C_dif

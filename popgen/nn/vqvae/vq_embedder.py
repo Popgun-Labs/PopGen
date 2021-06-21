@@ -9,6 +9,7 @@ class VQEmbedder(Function):
     pass the "straight-through" estimator is used (i.e. gradients pass as though no discretisation occurred).
     Ref: "Neural Discrete Representation Learning" https://arxiv.org/abs/1711.00937v2
     """
+
     @staticmethod
     def forward(ctx, z_e, codebook):
         """

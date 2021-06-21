@@ -9,12 +9,7 @@ class BinaryMNIST:
         :param dynamic: dynamic / static binarisation
         :param train:
         """
-        self.dataset = datasets.MNIST(
-            data_dir,
-            train=train,
-            transform=transforms.ToTensor(),
-            download=True
-        )
+        self.dataset = datasets.MNIST(data_dir, train=train, transform=transforms.ToTensor(), download=True)
 
         self.dynamic = dynamic
 

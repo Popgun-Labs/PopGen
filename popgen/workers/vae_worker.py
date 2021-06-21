@@ -12,8 +12,9 @@ from popgen.distributions import reparameterize
 
 
 class VAE_Worker(AbstractWorker):
-    def __init__(self, exp_name, model, run_dir, wandb, optim_class, optim_settings, annealing_temp, max_beta,
-                 *args, **kwargs):
+    def __init__(
+        self, exp_name, model, run_dir, wandb, optim_class, optim_settings, annealing_temp, max_beta, *args, **kwargs
+    ):
         super(VAE_Worker, self).__init__(exp_name, model, run_dir, wandb, *args, **kwargs)
 
         self.annealing_temp = annealing_temp
@@ -82,23 +83,26 @@ class VAE_Worker(AbstractWorker):
 
             # plot loss
             if i % self.log_interval == 0:
-                self._plot_loss({
-                    'loss': loss,
-                    'ELBO': elbo.item(),
-                    'NLL': nll.item(),
-                    'KL': kl.item(),
-                    'log q(z|x)': log_q_z,
-                    'log p(z)': log_p_z,
-                    'ln det': ln_det,
-                    'Beta': beta
-                }, train=train)
+                self._plot_loss(
+                    {
+                        "loss": loss,
+                        "ELBO": elbo.item(),
+                        "NLL": nll.item(),
+                        "KL": kl.item(),
+                        "log q(z|x)": log_q_z,
+                        "log p(z)": log_p_z,
+                        "ln det": ln_det,
+                        "Beta": beta,
+                    },
+                    train=train,
+                )
 
             # plot samples
             if i % 500 == 0:
                 x_hat = torch.sigmoid(logits).round()
                 self._plot_samples(x, x_hat, train=train)
 
-        return np.mean(elbos),
+        return (np.mean(elbos),)
 
     def train(self, loader):
         self.model.train()
@@ -134,10 +138,7 @@ class VAE_Worker(AbstractWorker):
             # iterate over batch
             for j, (mu_j, logvar_j, h_j) in enumerate(zip(mu, logvar, h)):
                 # draw `nb_samples` from the base posterior (batch, nb_samples)
-                z_0 = reparameterize(
-                    mu_j.repeat(nb_samples, 1),
-                    logvar_j.repeat(nb_samples, 1)
-                )
+                z_0 = reparameterize(mu_j.repeat(nb_samples, 1), logvar_j.repeat(nb_samples, 1))
 
                 # compute reconstructions in batches
                 z_0s = torch.chunk(z_0, nb_samples // mb, dim=0)
@@ -147,20 +148,14 @@ class VAE_Worker(AbstractWorker):
                     z_K = z_0
                     ln_det = torch.zeros(mb, device=z_0.device)
                     if self.model.posterior_flow is not None:
-                        z_K, ln_det = self.model.posterior_flow(
-                            z_K,
-                            h_j.repeat(mb, 1)
-                        )
+                        z_K, ln_det = self.model.posterior_flow(z_K, h_j.repeat(mb, 1))
                         ln_det = ln_det.sum(-1)  # (batch)
 
                     # compute KL
                     log_p_z = self.model.log_p_z(z_K, reduce=False, cache_params=True)
-                    log_q_z = self.model.log_q_z0(
-                        z_0,
-                        mu_j.repeat(mb, 1),
-                        logvar_j.repeat(mb, 1),
-                        reduce=False
-                    ) - ln_det
+                    log_q_z = (
+                        self.model.log_q_z0(z_0, mu_j.repeat(mb, 1), logvar_j.repeat(mb, 1), reduce=False) - ln_det
+                    )
                     KL = log_q_z - log_p_z
                     KL_j.append(KL.cpu())
 
@@ -168,18 +163,14 @@ class VAE_Worker(AbstractWorker):
                     x_sample_j = self.model.decoder(z_K)
 
                     # compute likelihood
-                    RE = F.binary_cross_entropy_with_logits(
-                        x_sample_j,
-                        x[j:j + 1].repeat(mb, 1),
-                        reduction='none'
-                    )
+                    RE = F.binary_cross_entropy_with_logits(x_sample_j, x[j : j + 1].repeat(mb, 1), reduction="none")
                     RE = torch.sum(RE, dim=-1, keepdim=False)
                     RE_j.append(RE.cpu())
 
                 # concatenate samples for this data point (nb_samples)
                 RE_j = torch.cat(RE_j, dim=0)
                 KL_j = torch.cat(KL_j, dim=0)
-                ELBO_j = - (RE_j + KL_j)
+                ELBO_j = -(RE_j + KL_j)
 
                 # compute the log of the average probability
                 ELBO_j = torch.logsumexp(ELBO_j, dim=0, keepdim=False)
@@ -221,15 +212,10 @@ class VAE_Worker(AbstractWorker):
             rec.append(wandb.Image(x_hat_np))
 
         # plot
-        self.wandb.log({
-            "{} Originals".format(prefix): orig,
-            "{} Reconstructions".format(prefix): rec
-        })
+        self.wandb.log({"{} Originals".format(prefix): orig, "{} Reconstructions".format(prefix): rec})
 
     def state_dict(self):
-        return {
-            'nb_iters': self.nb_iters
-        }
+        return {"nb_iters": self.nb_iters}
 
     def load_state_dict(self, state):
-        self.nb_iters = state['nb_iters']
+        self.nb_iters = state["nb_iters"]
