@@ -1,19 +1,20 @@
-from typing import Any, Optional
+from typing import Optional
 
 from torch.utils.data import DataLoader
 
+from popgen.setup.utils import import_pkg
 
-def setup_loaders(dataset_class: str, data_opts: dict, loader_opts: dict, module: Optional[Any] = None):
+
+def setup_loaders(dataset_class: str, data_opts: dict, loader_opts: dict, module: Optional[str] = None):
     """
     :param dataset_class: name of dataset class. any class exported in <module>/data/__init__.py
     :param data_opts: `dataset` config sub-dictionary
     :param loader_opts: `loader` config sub-dictionary
-    :param module: the module to import datasets from
+    :param module: string name of the module to import `datasets` from
     :return:
     """
     if module is not None:
-        datasets = module.datasets
-        assert hasattr(module, "datasets"), "Supplied module must export `datasets` sub pkg"
+        datasets = import_pkg(module, "datasets")
     else:
         from popgen import datasets
 

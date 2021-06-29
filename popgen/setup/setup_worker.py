@@ -2,7 +2,9 @@ import wandb
 import os
 
 from omegaconf import OmegaConf, DictConfig
-from typing import Optional, Union, Any
+from typing import Optional, Union
+
+from popgen.setup.utils import import_pkg
 
 
 def setup_worker(
@@ -11,7 +13,7 @@ def setup_worker(
     exp_dir: Optional[str] = None,
     include_wandb: bool = True,
     overwrite: bool = False,
-    module: Optional[Any] = None,
+    module: Optional[str] = None,
 ):
     """
     :param name: unique experiment name for saving/resuming
@@ -24,10 +26,8 @@ def setup_worker(
     :return:
     """
     if module is not None:
-        assert hasattr(module, "workers"), "Specified module must export `workers` sub pkg."
-        assert hasattr(module, "models"), "Specified module must export `models` sub pkg."
-        workers = module.workers
-        models = module.models
+        workers = import_pkg(module, "workers")
+        models = import_pkg(module, "models")
     else:
         from popgen import workers, models
 
