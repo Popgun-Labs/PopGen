@@ -41,7 +41,7 @@ class HouseholderSylvesterFlow(nn.Module):
 
         # store identity matrix as buffer (1, 1, L, L)
         # note: doing it this way ensures correct GPU
-        self.register_buffer('I', torch.eye(L).float().unsqueeze(0).unsqueeze(0))
+        self.register_buffer("I", torch.eye(L).float().unsqueeze(0).unsqueeze(0))
 
     def _get_flow_params(self, h, eps=1e-2):
         """
@@ -62,7 +62,8 @@ class HouseholderSylvesterFlow(nn.Module):
         # fail on batch == 1
         if batch == 1:
             raise Exception(
-                "Batch size 1 is invalid for HSNF, due to PyTorch `triu` bug! Try `.repeat()` on the batch dimension.")
+                "Batch size 1 is invalid for HSNF, due to PyTorch `triu` bug! Try `.repeat()` on the batch dimension."
+            )
 
         # get raw params
         params = self.linear(h)
@@ -76,7 +77,7 @@ class HouseholderSylvesterFlow(nn.Module):
 
         # create R_tilde
         R_tilde_params = K * L * L
-        R_tilde = params[:, used:used + R_tilde_params]  # (batch, R_params)
+        R_tilde = params[:, used : used + R_tilde_params]  # (batch, R_params)
         R_tilde = R_tilde.contiguous().view(batch, K, L, L).transpose(0, 1)
         used += R_tilde_params
 
@@ -85,8 +86,7 @@ class HouseholderSylvesterFlow(nn.Module):
         R_tilde_diag_o = R_tilde.diagonal(dim1=-2, dim2=-1)
         R_tilde_diag = R_tilde_diag_o * 1  # get a copy
         R_tilde_diag = F.softplus(R_tilde_diag) + eps
-        R_tilde = R_tilde - R_tilde_diag_o.diag_embed(dim1=-2, dim2=-1) \
-            + R_tilde_diag.diag_embed(dim1=-2, dim2=-1)
+        R_tilde = R_tilde - R_tilde_diag_o.diag_embed(dim1=-2, dim2=-1) + R_tilde_diag.diag_embed(dim1=-2, dim2=-1)
 
         # enforce R and R~ are upper triangular
         R = R.triu()
@@ -94,13 +94,13 @@ class HouseholderSylvesterFlow(nn.Module):
 
         # create the matrix of householder vectors
         V_params = K * H * L
-        V = params[:, used:used + V_params]  # (batch, R_params)
+        V = params[:, used : used + V_params]  # (batch, R_params)
         V = V.contiguous().view(batch, K, H, L).transpose(0, 1)
         used += V_params
 
         # create B
         B_params = K * L
-        B = params[:, used:used + B_params]  # (batch, R_params)
+        B = params[:, used : used + B_params]  # (batch, R_params)
         B = B.contiguous().view(batch, K, L).transpose(0, 1)
 
         return R, R_tilde, V, B
@@ -114,7 +114,7 @@ class HouseholderSylvesterFlow(nn.Module):
             ln_det: per-dimension log-var (batch, latent_dim)
         """
         z_k = z_0
-        ln_det = 0.
+        ln_det = 0.0
 
         R, R_tilde, V, B = self._get_flow_params(h)
 
@@ -141,10 +141,10 @@ class HouseholderSylvesterFlow(nn.Module):
         # note: see derivation for planar flows in appendix of https://arxiv.org/pdf/1505.05770.pdf
         R_tilde_diag = R_tilde.diagonal(dim1=-2, dim2=-1)
         R_diag = R.diagonal(dim1=-2, dim2=-1)
-        R_o_diag = R_diag * 1.  # get a copy
+        R_o_diag = R_diag * 1.0  # get a copy
         R_R_tilde = R_diag * R_tilde_diag
         M_R_R_tilde = -1 + F.softplus(R_R_tilde)
-        R_diag = R_diag + (M_R_R_tilde - R_R_tilde) * (1. / R_tilde_diag)
+        R_diag = R_diag + (M_R_R_tilde - R_R_tilde) * (1.0 / R_tilde_diag)
 
         # overwrite diagonal in R
         R_o = R_o_diag.diag_embed(dim1=-2, dim2=-1)
@@ -180,7 +180,7 @@ class HouseholderSylvesterFlow(nn.Module):
         return z_k, ln_det
 
     def h_prime(self, x):
-        return 1. - torch.tanh(x) ** 2
+        return 1.0 - torch.tanh(x) ** 2
 
     def ln_det(self, dot_product, r_tilde_r, eps=1e-8):
         """

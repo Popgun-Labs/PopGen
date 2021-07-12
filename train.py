@@ -12,18 +12,16 @@ def train(cfg: DictConfig) -> None:
         raise Exception("Must specify experiment name on CLI. e.g. `python train.py name=vae ...`")
 
     # setup the worker
-    overwrite = cfg.get('overwrite', False)
+    overwrite = cfg.get("overwrite", False)
     worker, cfg = setup_worker(name, cfg, overwrite=overwrite)
 
     # setup data loaders
     train_loader, test_loader = setup_loaders(
-        dataset_class=cfg['dataset_class'],
-        data_opts=cfg['dataset'],
-        loader_opts=cfg['loader']
+        dataset_class=cfg["dataset_class"], data_opts=cfg["dataset"], loader_opts=cfg["loader"]
     )
 
     # train
-    worker.run(train_loader, test_loader, cfg['nb_epoch'])
+    worker.run(train_loader, test_loader, cfg["nb_epoch"])
 
 
 if __name__ == "__main__":

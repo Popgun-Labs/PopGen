@@ -34,24 +34,16 @@ class AbstractWorker(ABC):
         # keep a list of all stateful objects, to include in the experiment checkpoints
         # includes the model by default
         # see: `register_state()
-        self.stateful_objects = {
-            'model': model
-        }
+        self.stateful_objects = {"model": model}
 
         # track the loss
-        self.lowest_loss = float('inf')
+        self.lowest_loss = float("inf")
         self.epoch_save_freq = epoch_save_freq
         self.log_interval = log_interval
 
         # cache values until its time to plot them
-        self._counters = {
-            'train': 0,
-            'test': 0
-        }
-        self._metric_cache = {
-            'train': {},
-            'test': {}
-        }
+        self._counters = {"train": 0, "test": 0}
+        self._metric_cache = {"train": {}, "test": {}}
 
     @abstractmethod
     def train(self, loader):
@@ -81,7 +73,7 @@ class AbstractWorker(ABC):
             # save `best`
             if loss_score < self.lowest_loss:
                 print("New lowest test loss {}".format(loss_score))
-                self.save(checkpoint_id='best')
+                self.save(checkpoint_id="best")
                 self.lowest_loss = loss_score
                 if self.wandb is not None:
                     self.wandb.summary["lowest_loss"] = loss_score
@@ -91,7 +83,7 @@ class AbstractWorker(ABC):
                 self.save(checkpoint_id="{}".format(epoch))
 
             # overwrite latest weights
-            self.save(checkpoint_id='latest')
+            self.save(checkpoint_id="latest")
 
     def cuda(self, device_id: int = 0):
         """
@@ -116,8 +108,8 @@ class AbstractWorker(ABC):
         :param name: unique name for what is being registered
         """
         assert name not in self.stateful_objects, "Duplicate key in state list for '{}'".format(name)
-        assert hasattr(obj, 'load_state_dict'), "Object must implement `load_state_dict` to be included in checkpoint."
-        assert hasattr(obj, 'state_dict'), "Object must implement `state_dict` to be included in checkpoint."
+        assert hasattr(obj, "load_state_dict"), "Object must implement `load_state_dict` to be included in checkpoint."
+        assert hasattr(obj, "state_dict"), "Object must implement `state_dict` to be included in checkpoint."
 
         self.stateful_objects[name] = obj
 
@@ -137,11 +129,7 @@ class AbstractWorker(ABC):
 
         # upload and overwrite the checkpoints to wandb if `upload_checkpoints` enabled in worker config
         if self.wandb is not None and self.upload_checkpoints and checkpoint_id in ["latest", "best"]:
-            self.wandb.save(
-                glob_str=checkpoint_path,
-                base_path=str(Path(self.run_dir).parent),
-                policy="live"
-            )
+            self.wandb.save(glob_str=checkpoint_path, base_path=str(Path(self.run_dir).parent), policy="live")
 
     def load(self, checkpoint_id: str = "best", strict: bool = True):
         """

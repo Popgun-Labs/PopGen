@@ -11,5 +11,5 @@ def sigmoid_annealing(iter_nb: int, temp: float = 1e-4) -> float:
     :param temp: rate of annealing (higher is faster), default converges in ~50k gradient updates.
     :return: a value in [0, 1], approaching 1. for larger values of `iter_nb`
     """
-    sigmoid = 1. / (1. + np.exp(-iter_nb * temp))
+    sigmoid = 1.0 / (1.0 + np.exp(-iter_nb * temp))
     return (2 * (sigmoid - 0.5)).item()

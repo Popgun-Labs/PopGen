@@ -16,9 +16,7 @@ def evaluate_vae(cfg: DictConfig) -> None:
 
     # setup data loaders
     _train_loader, test_loader = setup_loaders(
-        dataset_class=cfg['dataset_class'],
-        data_opts=cfg['dataset'],
-        loader_opts=cfg['loader']
+        dataset_class=cfg["dataset_class"], data_opts=cfg["dataset"], loader_opts=cfg["loader"]
     )
 
     # train
