@@ -3,14 +3,26 @@ import torch.nn as nn
 import os
 import numpy as np
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 from pathlib import Path
+
+from wandb.wandb_run import Run
 
 from torch.utils.data import DataLoader
 
 
 class AbstractWorker(ABC):
-    def __init__(self, exp_name, model, run_dir, wandb=None, epoch_save_freq=50, log_interval=50, *args, **kwargs):
+    def __init__(
+        self,
+        exp_name: str,
+        model: nn.Module,
+        run_dir: str,
+        wandb: Optional[Run] = None,
+        epoch_save_freq: int = 50,
+        log_interval: int = 50,
+        *args,
+        **kwargs,
+    ):
         """
         All workers should inherit from this class. It will:
         1. provide common utilities for saving, loading and device management.

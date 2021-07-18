@@ -1,5 +1,3 @@
--e git+git://github.com/Popgun-Labs/PopGen.git#popgen
-
 torch>=1.4
 tqdm>=4.46.0
 numpy>=1.16.1
