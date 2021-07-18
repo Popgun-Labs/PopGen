@@ -1,3 +1,4 @@
+import os
 import wandb
 
 from omegaconf import DictConfig
@@ -32,6 +33,15 @@ def setup_worker(
         from popgen import workers, models
 
         print("Warning: No module supplied in `setup_loaders`. Defaulting to `popgen.workers` and `popgen.models`. ")
+
+    # get experiment directory
+    if exp_dir is None:
+        exp_dir = os.environ.get("EXPERIMENT_DIR", False)
+        if not exp_dir:
+            raise Exception(
+                "No experiment directory defined. Set environment variable `EXPERIMENT_DIR` or "
+                "pass as kwarg `setup_worker(..., exp_dir=?)"
+            )
 
     # setup the directory
     cfg = setup_config(name, cfg, exp_dir, overwrite)

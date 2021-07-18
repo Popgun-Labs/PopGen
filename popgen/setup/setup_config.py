@@ -30,15 +30,6 @@ def setup_config(
     if type(cfg) == dict:
         cfg = DictConfig(cfg)
 
-    # get experiment directory
-    if exp_dir is None:
-        exp_dir = os.environ.get("EXPERIMENT_DIR", False)
-        if not exp_dir:
-            raise Exception(
-                "No experiment directory defined. Set environment variable `EXPERIMENT_DIR` or "
-                "pass as kwarg `setup_worker(..., exp_dir=?)"
-            )
-
     # create the experiment directory if it doesn't exist
     if not os.path.exists(exp_dir):
         os.mkdir(exp_dir)

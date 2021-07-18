@@ -9,7 +9,7 @@ def import_pkg(base: str, sub: str) -> ModuleType:
     :param sub:
     :return:
     """
-    pkg_path = f"{base}.datasets"
+    pkg_path = f"{base}.{sub}"
     try:
         pkg = import_module(pkg_path)
     except ModuleNotFoundError as _e:
