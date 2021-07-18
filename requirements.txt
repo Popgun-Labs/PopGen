@@ -1,3 +1,5 @@
+-e git+git://github.com/Popgun-Labs/PopGen.git#popgen
+
 torch>=1.4
 tqdm>=4.46.0
 numpy>=1.16.1
@@ -9,6 +11,5 @@ autopep8
 prompt_toolkit>=3.0.5
 omegaconf==1.4.1
 mypy~=0.902
-popgen~=0.0.2
 torchvision~=0.9.1
 setuptools~=50.3.0
