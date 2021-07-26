@@ -1,11 +1,25 @@
-from typing import Optional
+import numpy as np
+from typing import Optional, Tuple
 
 from torch.utils.data import DataLoader
 
 from popgen.setup.utils import import_pkg
 
 
-def setup_loaders(dataset_class: str, data_opts: dict, loader_opts: dict, module: Optional[str] = None):
+def worker_init_fn(worker_id):
+    """
+    Ensures that shuffle order and data augmentation is varied
+    between the threads, when num_workers > 1.
+    Note: possibly fixed in PyTorch 1.9
+    :param worker_id:
+    :return:
+    """
+    np.random.seed(np.random.get_state()[1][0] + worker_id)
+
+
+def setup_loaders(
+    dataset_class: str, data_opts: dict, loader_opts: dict, module: Optional[str] = None
+) -> Tuple[DataLoader, DataLoader]:
     """
     :param dataset_class: name of dataset class. any class exported in <module>/data/__init__.py
     :param data_opts: `dataset` config sub-dictionary
@@ -18,25 +32,45 @@ def setup_loaders(dataset_class: str, data_opts: dict, loader_opts: dict, module
     else:
         from popgen import datasets
 
-        print("Warning: No module supplied in `setup_loaders`. Defaulting to `popgen.datasets`")
+        print("Warning: No module name provided to `setup_loaders`. Defaulting to `popgen.datasets`")
 
-    # initialise datasets
-    dataset_class = getattr(datasets, dataset_class)
+    # get dataset options
     both = data_opts.get("both", {})
     train = data_opts.get("train", {})
     test = data_opts.get("test", {})
-    train_opts = {**both, **train}
-    test_opts = {**both, **test}
-    train_dataset = dataset_class(**train_opts)
-    test_dataset = dataset_class(**test_opts)
 
-    # initialise loaders
+    # initialise datasets
+    dataset_class = getattr(datasets, dataset_class)
+    train_dataset = dataset_class(**{**both, **train})
+    test_dataset = dataset_class(**{**both, **test})
+
+    # loader settings
     both = loader_opts.get("both", {})
     train = loader_opts.get("train", {})
     test = loader_opts.get("test", {})
-    train_opts = {**both, **train}
-    test_opts = {**both, **test}
-    train_loader = DataLoader(train_dataset, **train_opts)
-    test_loader = DataLoader(test_dataset, **test_opts)
+
+    # seed each worker with different random seed
+    both["worker_init_fn"] = worker_init_fn
+
+    # account for custom `collate_fn`
+    if hasattr(train_dataset, "get_collate_fn"):
+        train["collate_fn"] = train_dataset.get_collate_fn()
+        test["collate_fn"] = test_dataset.get_collate_fn()
+
+    # account for custom batch sampler
+    if hasattr(train_dataset, "get_batch_sampler"):
+        train["batch_sampler"] = train_dataset.get_batch_sampler()
+        test["batch_sampler"] = test_dataset.get_batch_sampler()
+
+        # remove mutually exclusive args
+        for opts in (both, train, test):
+            opts.pop("batch_size", None)
+            opts.pop("shuffle", None)
+            opts.pop("sampler", None)
+            opts.pop("drop_last", None)
+
+    # initialise loaders
+    train_loader = DataLoader(train_dataset, **{**both, **train})
+    test_loader = DataLoader(test_dataset, **{**both, **test})
 
     return train_loader, test_loader
