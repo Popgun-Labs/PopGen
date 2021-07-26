@@ -1,8 +1,20 @@
+import numpy as np
 from typing import Optional, Tuple
 
 from torch.utils.data import DataLoader
 
 from popgen.setup.utils import import_pkg
+
+
+def worker_init_fn(worker_id):
+    """
+    Ensures that shuffle order and data augmentation is varied
+    between the threads, when num_workers > 1.
+    Note: possibly fixed in PyTorch 1.9
+    :param worker_id:
+    :return:
+    """
+    np.random.seed(np.random.get_state()[1][0] + worker_id)
 
 
 def setup_loaders(
@@ -36,6 +48,9 @@ def setup_loaders(
     both = loader_opts.get("both", {})
     train = loader_opts.get("train", {})
     test = loader_opts.get("test", {})
+
+    # seed each worker with different random seed
+    both["worker_init_fn"] = worker_init_fn
 
     # account for custom `collate_fn`
     if hasattr(train_dataset, "get_collate_fn"):
