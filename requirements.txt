@@ -1,13 +1,17 @@
-torch>=1.4
+# pytorch
+torch>=1.7.1
+torchvision>=0.8.2
+
+# hydra + wandb
+omegaconf==1.4.1
+hydra-core==0.11.3
+wandb~=0.10.21
+
+# types
+mypy~=0.902
+
+# miscellaneous
 tqdm>=4.46.0
 numpy>=1.16.1
 seaborn
-hydra-core==0.11.3
-wandb~=0.10.21
-flake8
-autopep8
-prompt_toolkit>=3.0.5
-omegaconf==1.4.1
-mypy~=0.902
-torchvision~=0.9.1
 setuptools~=50.3.0
