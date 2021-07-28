@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Optional, Tuple
 
-from torch.utils.data import DataLoader
+from torch.utils.data.dataloader import DataLoader
 
 from popgen.setup.utils import import_pkg
 
