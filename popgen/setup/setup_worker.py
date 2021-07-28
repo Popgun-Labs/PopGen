@@ -46,9 +46,6 @@ def setup_worker(
     # setup the directory
     cfg = setup_config(name, cfg, exp_dir, overwrite)
 
-    # print(cfg['model'])
-    # raise
-
     # initialise model
     model_class = getattr(models, cfg["model"].pop("class"))
     model = model_class(**cfg["model"])
