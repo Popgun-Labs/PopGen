@@ -50,12 +50,12 @@ def setup_loaders(
     test = loader_opts.get("test", {})
 
     # seed each worker with different random seed
-    both["worker_init_fn"] = worker_init_fn
+    # both["worker_init_fn"] = worker_init_fn
 
     # account for custom `collate_fn`
+    collate_fn = None
     if hasattr(train_dataset, "get_collate_fn"):
-        train["collate_fn"] = train_dataset.get_collate_fn()
-        test["collate_fn"] = test_dataset.get_collate_fn()
+        collate_fn = train_dataset.get_collate_fn()
 
     # account for custom batch sampler
     if hasattr(train_dataset, "get_batch_sampler"):
@@ -70,7 +70,7 @@ def setup_loaders(
             opts.pop("drop_last", None)
 
     # initialise loaders
-    train_loader = DataLoader(train_dataset, **{**both, **train})
-    test_loader = DataLoader(test_dataset, **{**both, **test})
+    train_loader = DataLoader(train_dataset, collate_fn=collate_fn, **{**both, **train})
+    test_loader = DataLoader(test_dataset, collate_fn=collate_fn, **{**both, **test})
 
     return train_loader, test_loader

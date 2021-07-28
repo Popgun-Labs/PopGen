@@ -46,8 +46,11 @@ def setup_worker(
     # setup the directory
     cfg = setup_config(name, cfg, exp_dir, overwrite)
 
+    # print(cfg['model'])
+    # raise
+
     # initialise model
-    model_class = getattr(models, cfg["model_class"])
+    model_class = getattr(models, cfg["model"].pop("class"))
     model = model_class(**cfg["model"])
 
     # setup visualisation
@@ -58,7 +61,7 @@ def setup_worker(
 
     # initialise the worker
     run_dir = "{}/{}".format(exp_dir, name)
-    worker_class = getattr(workers, cfg["worker_class"])
+    worker_class = getattr(workers, cfg["worker"].pop("class"))
     worker = worker_class(name, model, run_dir, run, **cfg["worker"])
 
     return worker, cfg

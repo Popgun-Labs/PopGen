@@ -16,8 +16,9 @@ def train(cfg: DictConfig) -> None:
     worker, cfg = setup_worker(name, cfg, overwrite=overwrite)
 
     # setup data loaders
+    dataset_class = cfg["dataset"].pop("class")
     train_loader, test_loader = setup_loaders(
-        dataset_class=cfg["dataset_class"], data_opts=cfg["dataset"], loader_opts=cfg["loader"]
+        dataset_class=dataset_class, data_opts=cfg["dataset"], loader_opts=cfg["loader"]
     )
 
     # train

@@ -69,6 +69,6 @@ def setup_config(
 
     # print the configuration
     if verbose:
-        print(cfg.pretty())
+        print(OmegaConf.to_yaml(cfg))
 
     return cfg
