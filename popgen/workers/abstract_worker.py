@@ -143,11 +143,12 @@ class AbstractWorker(ABC):
         if self.wandb is not None and self.upload_checkpoints and checkpoint_id in ["latest", "best"]:
             self.wandb.save(glob_str=checkpoint_path, base_path=str(Path(self.run_dir).parent), policy="live")
 
-    def load(self, checkpoint_id: str = "best", strict: bool = True):
+    def load(self, checkpoint_id: str = "best", strict: bool = True, with_optim: bool = True):
         """
         Load state from existing checkpoint.
         :param checkpoint_id:
         :param strict: whether to use strict loading for the model weights (see PyTorch nn.Module `load_state_dict)
+        :param with_optim:
         :return:
         """
 
@@ -161,6 +162,8 @@ class AbstractWorker(ABC):
 
         state_dict = torch.load(checkpoint_path)
         for key, state in state_dict.items():
+            if not with_optim and key == "optim":
+                continue
             assert key in self.stateful_objects, "Invalid key `{}` in saved checkpoint.".format(key)
             obj = self.stateful_objects[key]
             if isinstance(obj, nn.Module):

@@ -53,7 +53,8 @@ def setup_worker(
     # setup visualisation
     run = None
     if include_wandb and "wandb" in cfg:
-        run = wandb.init(name=name, config=cfg, id=cfg["run_id"], resume="allow", **cfg["wandb"])
+        entity = os.environ.get("WANDB_ENTITY", None)
+        run = wandb.init(name=name, entity=entity, config=cfg, id=cfg["run_id"], resume="allow", **cfg["wandb"])
         run.watch(model)
 
     # initialise the worker
