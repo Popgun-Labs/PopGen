@@ -15,6 +15,7 @@ def setup_worker(
     include_wandb: bool = True,
     overwrite: bool = False,
     module: Optional[str] = None,
+    checkpoint_id: str = "best",
 ):
     """
     :param name: unique experiment name for saving/resuming
@@ -24,6 +25,7 @@ def setup_worker(
     :param include_wandb: include an instance of wandb ? (required for training)
     :param overwrite: overwrite existing experiment
     :param module: a python module containing `workers`, `models` and `datasets`
+    :param checkpoint_id: for inference / resuming, which checkpoint should we load?
     :return:
     """
     if module is not None:
@@ -59,6 +61,6 @@ def setup_worker(
     # initialise the worker
     run_dir = "{}/{}".format(exp_dir, name)
     worker_class = getattr(workers, cfg["worker"].pop("class"))
-    worker = worker_class(name, model, run_dir, run, **cfg["worker"])
+    worker = worker_class(name, model, run_dir, run, checkpoint_id=checkpoint_id, **cfg["worker"])
 
     return worker, cfg
