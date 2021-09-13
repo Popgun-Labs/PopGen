@@ -48,8 +48,12 @@ class AbstractWorker(ABC):
         # see: `register_state()
         self.stateful_objects = {"model": model}
 
-        # track the loss
+        # track loss and summary stats
         self.lowest_loss = float("inf")
+        self.summary_stats = {}
+
+        # epoch related stuff
+        self.epoch_counter = 0
         self.epoch_save_freq = epoch_save_freq
         self.log_interval = log_interval
 
@@ -74,13 +78,19 @@ class AbstractWorker(ABC):
         :return:
         """
         for epoch in range(nb_epoch):
-            # reset numpy random seed
-            np.random.seed()
+            # reset numpy random seed TODO: check if this is necessary!
+            np.random.seed(0)
 
-            # wandb train and test sets
+            # train and test sets
             self.train(train_loader)
+            self.epoch_counter += 1
             with torch.no_grad():
-                loss_score, *_ = self.evaluate(test_loader)
+                loss_score, summary_stats = self.evaluate(test_loader)
+
+            # track individual metrics at an epoch level
+            assert type(summary_stats) == dict, "`worker.evaluate()` expects return type : (float, Dict)"
+            for k, v in summary_stats.item():
+                self.summary_stats[k] = v
 
             # save `best`
             if loss_score < self.lowest_loss:
@@ -89,10 +99,12 @@ class AbstractWorker(ABC):
                 self.lowest_loss = loss_score
                 if self.wandb is not None:
                     self.wandb.summary["lowest_loss"] = loss_score
+                    for k, v in self.summary_stats.items():
+                        self.wandb.summary[f"{k}: Lowest Test Set (Avg)"] = v
 
             # save every `x` epoch
-            if epoch % self.epoch_save_freq == 0:
-                self.save(checkpoint_id="{}".format(epoch))
+            if self.epoch_counter % self.epoch_save_freq == 0:
+                self.save(checkpoint_id="{}".format(self.epoch_counter))
 
             # overwrite latest weights
             self.save(checkpoint_id="latest")
@@ -131,7 +143,11 @@ class AbstractWorker(ABC):
         :param checkpoint_id:
         :return:
         """
-        state_dict = {}
+        state_dict = {
+            "lowest_loss": self.lowest_loss,
+            "summary_stats": self.summary_stats,
+            "epoch_counter": self.epoch_counter,
+        }
         for key, obj in self.stateful_objects.items():
             state_dict[key] = obj.state_dict()
 
@@ -162,14 +178,23 @@ class AbstractWorker(ABC):
 
         state_dict = torch.load(checkpoint_path)
         for key, state in state_dict.items():
+            # skip optimiser
             if not with_optim and key == "optim":
                 continue
+            # skip over important top-level state (always track this!)
+            if key in {"lowest_loss", "summary_stats", "epoch_counter"}:
+                continue
+            # handle remaining objects (model, worker, optimiser, any other user defined stuff)
             assert key in self.stateful_objects, "Invalid key `{}` in saved checkpoint.".format(key)
             obj = self.stateful_objects[key]
             if isinstance(obj, nn.Module):
                 obj.load_state_dict(state, strict)
             else:
                 obj.load_state_dict(state)
+
+        self.summary_stats = state_dict["summary_stats"]
+        self.lowest_loss = state_dict["lowest_loss"]
+        self.epoch_counter = state_dict["epoch_counter"]
 
     @staticmethod
     def unwrap_value(v):
