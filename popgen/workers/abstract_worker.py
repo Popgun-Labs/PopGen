@@ -89,7 +89,7 @@ class AbstractWorker(ABC):
 
             # track individual metrics at an epoch level
             assert type(summary_stats) == dict, "`worker.evaluate()` expects return type : (float, Dict)"
-            for k, v in summary_stats.item():
+            for k, v in summary_stats.items():
                 self.summary_stats[k] = v
 
             # save `best`
