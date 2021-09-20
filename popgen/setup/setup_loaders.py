@@ -55,12 +55,14 @@ def setup_loaders(
         collate_fn = train_dataset.get_collate_fn()
 
     # account for custom batch sampler
+    train_loader_opts = {**both, **train}
+    test_loader_opts = {**both, **test}
     if hasattr(train_dataset, "get_batch_sampler"):
-        train["batch_sampler"] = train_dataset.get_batch_sampler()
-        test["batch_sampler"] = test_dataset.get_batch_sampler()
+        train_loader_opts["batch_sampler"] = train_dataset.get_batch_sampler()
+        test_loader_opts["batch_sampler"] = test_dataset.get_batch_sampler()
 
         # remove mutually exclusive args
-        for opts in (both, train, test):
+        for opts in (train_loader_opts, test_loader_opts):
             opts.pop("batch_size", None)
             opts.pop("shuffle", None)
             opts.pop("sampler", None)
@@ -68,10 +70,10 @@ def setup_loaders(
 
     # initialise loaders
     train_loader = DataLoader(
-        dataset=train_dataset, collate_fn=collate_fn, worker_init_fn=worker_init_fn, **{**both, **train}
+        dataset=train_dataset, collate_fn=collate_fn, worker_init_fn=worker_init_fn, **train_loader_opts
     )
     test_loader = DataLoader(
-        dataset=test_dataset, collate_fn=collate_fn, worker_init_fn=worker_init_fn, **{**both, **test}
+        dataset=test_dataset, collate_fn=collate_fn, worker_init_fn=worker_init_fn, **test_loader_opts
     )
 
     return train_loader, test_loader
