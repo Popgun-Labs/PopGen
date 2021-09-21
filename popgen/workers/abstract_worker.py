@@ -194,9 +194,9 @@ class AbstractWorker(ABC):
                 obj.load_state_dict(state)
 
         if not self.reset_metrics:
-            self.summary_stats = state_dict["summary_stats"]
-            self.lowest_loss = state_dict["lowest_loss"]
-        self.epoch_counter = state_dict["epoch_counter"]
+            self.summary_stats = state_dict.get("summary_stats", {})
+            self.lowest_loss = state_dict.get("lowest_loss", float("inf"))
+        self.epoch_counter = state_dict.get("epoch_counter", 0)
 
     @staticmethod
     def unwrap_value(v):
