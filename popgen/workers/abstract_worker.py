@@ -38,6 +38,7 @@ class AbstractWorker(ABC):
         :param kwargs:
         """
 
+        self.reset_metrics = kwargs.get("reset_metrics", False)
         self.exp_name = exp_name
         self.wandb = wandb
         self.run_dir = run_dir
@@ -192,8 +193,9 @@ class AbstractWorker(ABC):
             else:
                 obj.load_state_dict(state)
 
-        self.summary_stats = state_dict["summary_stats"]
-        self.lowest_loss = state_dict["lowest_loss"]
+        if not self.reset_metrics:
+            self.summary_stats = state_dict["summary_stats"]
+            self.lowest_loss = state_dict["lowest_loss"]
         self.epoch_counter = state_dict["epoch_counter"]
 
     @staticmethod

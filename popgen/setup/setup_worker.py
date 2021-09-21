@@ -14,6 +14,7 @@ def setup_worker(
     exp_dir: Optional[str] = None,
     include_wandb: bool = True,
     overwrite: bool = False,
+    reset_metrics: bool = False,
     module: Optional[str] = None,
     checkpoint_id: str = "best",
 ):
@@ -24,6 +25,7 @@ def setup_worker(
     :param exp_dir: directory to store experiment runs
     :param include_wandb: include an instance of wandb ? (required for training)
     :param overwrite: overwrite existing experiment
+    :param reset_metrics: if `True` the `lowest_loss` and `summary_stats` are reset
     :param module: a python module containing `workers`, `models` and `datasets`
     :param checkpoint_id: for inference / resuming, which checkpoint should we load?
     :return:
@@ -61,6 +63,8 @@ def setup_worker(
     # initialise the worker
     run_dir = "{}/{}".format(exp_dir, name)
     worker_class = getattr(workers, cfg["worker"].pop("class"))
-    worker = worker_class(name, model, run_dir, run, checkpoint_id=checkpoint_id, **cfg["worker"])
+    worker = worker_class(
+        name, model, run_dir, run, checkpoint_id=checkpoint_id, reset_metrics=reset_metrics, **cfg["worker"]
+    )
 
     return worker, cfg
