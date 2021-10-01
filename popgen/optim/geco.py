@@ -39,3 +39,11 @@ class GECO:
 
         self.lagrange = self.lagrange * np.exp(self.prop * C)
         self.t = self.t + 1
+
+    def state_dict(self):
+        return {"t": self.t, "lagrange": self.lagrange, "C_ma": self.C_ma}
+
+    def load_state_dict(self, state_dict):
+        self.t = state_dict["t"]
+        self.lagrange = state_dict["lagrange"]
+        self.C_ma = state_dict["C_ma"]
