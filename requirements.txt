@@ -13,7 +13,7 @@ omegaconf==2.1.*
 mypy~=0.902
 
 # miscellaneous
-tqdm>=4.46.0
-numpy>=1.16.1
-seaborn
+tqdm~=4.40
+numpy>=1.16,<1.21
+seaborn~=0.11.2
 setuptools~=50.3.0
