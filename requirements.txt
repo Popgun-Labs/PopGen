@@ -1,13 +1,13 @@
 # pytorch
 torch~=1.9.0
-torchvision~=0.8.0
+torchvision~=0.10.0
 
 # todo: upgrade this
 wandb~=0.10.21
 
 # hydra
 hydra-core~=1.1.0
-omegaconf==2.1.*
+omegaconf~=2.1.0
 
 # types
 mypy~=0.902
