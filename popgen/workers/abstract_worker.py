@@ -186,12 +186,17 @@ class AbstractWorker(ABC):
             if key in {"lowest_loss", "summary_stats", "epoch_counter"}:
                 continue
             # handle remaining objects (model, worker, optimiser, any other user defined stuff)
-            assert key in self.stateful_objects, "Invalid key `{}` in saved checkpoint.".format(key)
-            obj = self.stateful_objects[key]
-            if isinstance(obj, nn.Module):
-                obj.load_state_dict(state, strict)
+            if key not in self.stateful_objects:
+                print(
+                    f"Warning! {key} was found in the checkpoint but not in the stateful objects for the current"
+                    f"run!"
+                )
             else:
-                obj.load_state_dict(state)
+                obj = self.stateful_objects[key]
+                if isinstance(obj, nn.Module):
+                    obj.load_state_dict(state, strict)
+                else:
+                    obj.load_state_dict(state)
 
         if not self.reset_metrics:
             self.summary_stats = state_dict.get("summary_stats", {})
