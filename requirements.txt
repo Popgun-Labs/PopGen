@@ -4,7 +4,7 @@ torchvision>=0.8.2
 
 # hydra + wandb
 omegaconf==1.4.1
-hydra-core==0.11.3
+hydra-core==1.3.7
 wandb~=0.10.21
 
 # types
